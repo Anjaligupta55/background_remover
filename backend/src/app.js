@@ -26,16 +26,25 @@ app.use(limiter);
 
 // CORS configuration
 app.use(cors({
-  origin: [FRONTEND_URL, 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002'],
-  credentials: true
+  origin: [FRONTEND_URL, 'http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://localhost:5173', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:3002', 'http://127.0.0.1:5173'],
+  credentials: true,
+  exposedHeaders: ['X-Credits-Left']
 }));
 
 // Body Parser
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Static Folder for Uploads
+app.use('/uploads', express.static('uploads'));
+
+const authRoutes = require('./routes/auth.routes');
+const historyRoutes = require('./routes/history.routes');
+
 // Routes
-app.use('/', removeBgRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/history', historyRoutes);
+app.use('/api', removeBgRoutes); // Keep existing removeBg routes under /api
 
 // Error Handler
 app.use(errorHandler);

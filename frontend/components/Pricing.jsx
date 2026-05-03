@@ -1,127 +1,93 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Check, Star, Zap, Crown } from "lucide-react";
+import { Zap, Crown, Check, Loader2 } from "lucide-react";
 
-const plans = [
-  {
-    name: "Starter",
-    price: "0",
-    icon: Star,
-    color: "text-gray-400",
-    features: [
-      "5 images per day",
-      "Standard resolution",
-      "Community support",
-      "Web-only access"
-    ],
-    cta: "Start Free",
-    popular: false
-  },
-  {
-    name: "Professional",
-    price: "99",
-    icon: Zap,
-    color: "text-primary",
-    features: [
-      "100 images per month",
-      "Ultra HD resolution",
-      "Priority API access",
-      "Commercial license",
-      "Batch background removal"
-    ],
-    cta: "Go Pro",
-    popular: true
-  },
-  {
-    name: "Enterprise",
-    price: "299",
-    icon: Crown,
-    color: "text-accent",
-    features: [
-      "Unlimited images",
-      "Dedicated GPU instances",
-      "Custom API integration",
-      "24/7 Phone support",
-      "Legal & SLA guarantees"
-    ],
-    cta: "Join Enterprise",
-    popular: false
-  }
-];
+export default function Pricing({ onBuy = () => console.error("onBuy function not provided"), isLoading = false }) {
+  const plans = [
+    {
+      id: "basic",
+      name: "Basic Plan",
+      price: "99",
+      credits: "50 Credits",
+      icon: <Zap size={24} />,
+      color: "from-blue-500/20 to-transparent",
+      features: ["50 HD Removals", "History Storage", "Basic Support"]
+    },
+    {
+      id: "pro",
+      name: "Pro Plan",
+      price: "299",
+      credits: "200 Credits",
+      icon: <Crown size={24} />,
+      color: "from-primary/20 to-transparent",
+      features: ["200 HD Removals", "Priority Support", "Batch Processing (Soon)", "Commercial License"],
+      popular: true
+    }
+  ];
 
-export default function Pricing() {
   return (
-    <section id="pricing-section" className="py-32 relative">
-      {/* Background decoration */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-primary/10 rounded-full blur-[150px] -z-10"></div>
-
-      <div className="container mx-auto px-4">
-        <div className="text-center mb-24">
-          <motion.h2 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            className="text-4xl md:text-6xl font-black mb-6"
-          >
-            Ready to <span className="text-gradient">Scale?</span>
-          </motion.h2>
-          <p className="text-gray-400 max-w-xl mx-auto text-lg">
-            Choose the plan that fits your creative workflow. No hidden fees, cancel anytime.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-7xl mx-auto items-end">
-          {plans.map((plan, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              className={`relative rounded-[3rem] p-10 flex flex-col transition-all duration-500 hover:scale-[1.05] ${
-                plan.popular 
-                ? "bg-linear-to-b from-primary/10 to-secondary/5 border-2 border-primary/50 shadow-[0_0_80px_rgba(139,92,246,0.15)] h-[650px] z-10" 
-                : "glass-card h-[580px] border-white/5"
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-5 left-1/2 -translate-x-1/2 bg-primary text-white text-xs font-black px-6 py-2 rounded-full uppercase tracking-[0.2em] shadow-xl">
-                  Best Value
-                </div>
-              )}
-
-              <div className="mb-10 text-center">
-                <plan.icon className={`w-12 h-12 mx-auto mb-6 ${plan.color}`} />
-                <h3 className="text-3xl font-black mb-2 tracking-tight">{plan.name}</h3>
-                <div className="flex items-baseline justify-center gap-1 mt-4">
-                  <span className="text-gray-400 text-2xl">₹</span>
-                  <span className="text-6xl font-black tracking-tighter">{plan.price}</span>
-                  <span className="text-gray-500 font-bold ml-1">/mo</span>
-                </div>
-              </div>
-
-              <ul className="space-y-5 mb-10 flex-1">
-                {plan.features.map((feature, i) => (
-                  <li key={i} className="flex items-center gap-4 text-gray-300 font-medium">
-                    <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${plan.popular ? 'bg-primary/20' : 'bg-white/5'}`}>
-                      <Check className={`w-3.5 h-3.5 ${plan.popular ? 'text-primary' : 'text-gray-500'}`} />
-                    </div>
-                    {feature}
-                  </li>
-                ))}
-              </ul>
-
-              <button className={`w-full py-5 rounded-2xl font-black text-lg transition-all duration-300 ${
-                plan.popular
-                ? "bg-white text-black hover:bg-primary hover:text-white shadow-[0_20px_40px_rgba(255,255,255,0.1)]"
-                : "bg-white/5 hover:bg-white/10 text-white border border-white/10"
-              }`}>
-                {plan.cta}
-              </button>
-            </motion.div>
-          ))}
-        </div>
+    <div className="py-12">
+      <div className="text-center mb-12">
+        <h2 className="text-4xl font-black mb-4">Choose Your <span className="text-gradient">Plan</span></h2>
+        <p className="text-gray-400">Get more credits to continue your creative journey.</p>
       </div>
-    </section>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        {plans.map((plan, index) => (
+          <motion.div
+            key={plan.id}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: index * 0.1 }}
+            className={`glass-card p-8 rounded-[2.5rem] border ${plan.popular ? 'border-primary/50' : 'border-white/5'} relative overflow-hidden group`}
+          >
+            {plan.popular && (
+              <div className="absolute top-0 right-0 px-4 py-1 bg-primary text-white text-[10px] font-black uppercase tracking-widest rounded-bl-2xl">
+                Most Popular
+              </div>
+            )}
+            
+            <div className={`w-14 h-14 bg-linear-to-br ${plan.color} rounded-2xl flex items-center justify-center mb-6 text-white group-hover:scale-110 transition-transform`}>
+              {plan.icon}
+            </div>
+
+            <h3 className="text-2xl font-bold mb-2">{plan.name}</h3>
+            <div className="flex items-baseline gap-1 mb-6">
+              <span className="text-4xl font-black">₹{plan.price}</span>
+              <span className="text-gray-500 text-sm font-bold">/ one-time</span>
+            </div>
+
+            <div className="p-4 bg-white/5 rounded-2xl mb-8 border border-white/5 text-center">
+              <span className="text-primary font-black text-xl">{plan.credits}</span>
+            </div>
+
+            <ul className="space-y-4 mb-8">
+              {plan.features.map((feature, i) => (
+                <li key={i} className="flex items-center gap-3 text-sm text-gray-400">
+                  <div className="text-primary"><Check size={16} /></div>
+                  {feature}
+                </li>
+              ))}
+            </ul>
+
+            <button
+              onClick={() => onBuy(plan.id)}
+              disabled={isLoading}
+              className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-2xl flex items-center justify-center gap-2 ${plan.popular ? 'bg-primary text-white hover:scale-105' : 'bg-white text-black hover:bg-gray-200'} ${isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={16} />
+                  Processing...
+                </>
+              ) : (
+                'Buy Now'
+              )}
+            </button>
+          </motion.div>
+        ))}
+      </div>
+    </div>
   );
 }

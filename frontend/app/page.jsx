@@ -22,7 +22,10 @@ export default function Home() {
 
   const [user, setUser] = useState(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isPaymentLoading, setIsPaymentLoading] = useState(false);
   const router = useRouter();
+
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
   useEffect(() => {
     const storedUser = localStorage.getItem("user");
@@ -36,6 +39,100 @@ export default function Home() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const loadScript = (src) => {
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = src;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePayment = async (plan) => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      alert("Please login first to buy credits!");
+      router.push("/login");
+      return;
+    }
+
+    setIsPaymentLoading(true);
+    const resScript = await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+
+    if (!resScript) {
+      alert("Razorpay SDK failed to load. Are you online?");
+      setIsPaymentLoading(false);
+      return;
+    }
+
+    try {
+      const orderRes = await fetch(`${BACKEND_URL}/api/payment/create-order`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ plan }),
+      });
+
+      const orderData = await orderRes.json();
+      
+      if (!orderData.success) {
+        alert(orderData.message || "Failed to create order");
+        setIsPaymentLoading(false);
+        return;
+      }
+
+      const options = {
+        key: orderData.key,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "SnapCut AI",
+        description: `${plan.toUpperCase()} Plan Purchase`,
+        order_id: orderData.orderId,
+        handler: async function (response) {
+          const verifyRes = await fetch(`${BACKEND_URL}/api/payment/verify`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              ...response,
+              plan,
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+          if (verifyData.success) {
+            alert("Payment Successful! Credits added to your account.");
+            localStorage.setItem("user", JSON.stringify(verifyData.user));
+            setUser(verifyData.user);
+            router.push("/dashboard");
+          } else {
+            alert("Payment verification failed.");
+          }
+        },
+        prefill: {
+          name: user?.name,
+          email: user?.email,
+        },
+        theme: {
+          color: "#7c3aed",
+        },
+      };
+
+      setIsPaymentLoading(false);
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.error("Payment error:", err);
+      alert("Something went wrong with the payment process.");
+      setIsPaymentLoading(false);
+    }
+  };
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -123,7 +220,7 @@ export default function Home() {
       </div>
 
       <Features />
-      <Pricing />
+      <Pricing onBuy={handlePayment} isLoading={isPaymentLoading} />
       <Footer />
     </main>
   );

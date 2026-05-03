@@ -99,12 +99,16 @@ exports.removeBackground = async (req, res, next) => {
         try {
           const errorMsg = JSON.parse(error.response.data.toString());
           console.error('API Error details:', errorMsg);
-        } catch (e) {}
+        } catch (e) {
+          // Ignore parse errors
+        }
       }
       
       if (error.response.status === 403) {
-        res.status(403);
-        return next(new Error('Invalid or missing API Key'));
+        return res.status(403).json({
+          success: false,
+          message: 'Invalid or missing API Key for background removal'
+        });
       }
     }
 

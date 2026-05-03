@@ -10,8 +10,18 @@ const app = express();
 
 // Security Middleware
 app.use(helmet({
-  crossOriginResourcePolicy: false, // Allow images to be loaded from backend
+  crossOriginResourcePolicy: false, 
+  contentSecurityPolicy: false,
 }));
+
+// Custom CSP to silence Chrome DevTools errors
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: gap: content:;");
+  next();
+});
+
+// Root health check
+app.get('/health', (req, res) => res.status(200).json({ success: true, message: 'SnapCut AI API is alive' }));
 
 // Rate Limiting
 const limiter = rateLimit({
@@ -40,10 +50,12 @@ app.use('/uploads', express.static('uploads'));
 
 const authRoutes = require('./routes/auth.routes');
 const historyRoutes = require('./routes/history.routes');
+const paymentRoutes = require('./routes/payment.routes');
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/history', historyRoutes);
+app.use('/api/payment', paymentRoutes);
 app.use('/api', removeBgRoutes); // Keep existing removeBg routes under /api
 
 // Error Handler

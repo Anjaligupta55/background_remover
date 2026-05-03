@@ -76,18 +76,18 @@ export default function Features() {
           {features.map((feature, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ y: -10, scale: 1.02 }}
-              className="glass-card p-10 rounded-[2.5rem] border border-white/5 hover:border-primary/30 transition-all duration-500 group"
+              transition={{ delay: index * 0.05 }}
+              whileHover={{ scale: 1.02 }}
+              className="glass-card p-10 rounded-[2.5rem] border border-white/5 hover:border-primary/20 transition-all duration-300 group"
             >
-              <div className={`w-16 h-16 rounded-2xl ${feature.bg} flex items-center justify-center mb-8 group-hover:rotate-6 transition-transform shadow-2xl`}>
-                <feature.icon className={`w-8 h-8 ${feature.color}`} />
+              <div className={`w-14 h-14 rounded-2xl ${feature.bg} flex items-center justify-center mb-8 shadow-2xl`}>
+                <feature.icon className={`w-7 h-7 ${feature.color}`} />
               </div>
               <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors">{feature.title}</h3>
-              <p className="text-gray-400 leading-relaxed text-lg">{feature.description}</p>
+              <p className="text-gray-400 leading-relaxed text-base">{feature.description}</p>
             </motion.div>
           ))}
         </div>

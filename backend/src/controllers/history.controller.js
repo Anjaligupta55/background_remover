@@ -6,11 +6,21 @@ const path = require('path');
 // @route   GET /api/history
 exports.getHistory = async (req, res, next) => {
   try {
-    const history = await ImageHistory.find({ user: req.user.id }).sort({ createdAt: -1 });
+    const limit = parseInt(req.query.limit) || 10;
+    const page = parseInt(req.query.page) || 1;
+    const skip = (page - 1) * limit;
+
+    const total = await ImageHistory.countDocuments({ user: req.user.id });
+    const history = await ImageHistory.find({ user: req.user.id })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit);
     
     res.json({
       success: true,
-      history
+      history,
+      total,
+      hasMore: total > skip + history.length
     });
   } catch (error) {
     next(error);

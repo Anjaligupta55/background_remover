@@ -9,6 +9,10 @@ const generateToken = (id) => {
   });
 };
 
+
+
+
+
 // @desc    Register a new user
 // @route   POST /api/auth/signup
 exports.signup = async (req, res, next) => {
